@@ -1,0 +1,2143 @@
+openapi: 3.0.3
+info:
+  title: Inženjerstvo serverskog sloja - projekat 2022
+  version: 1.0.0
+tags:
+  - name: putnik
+    description: Funkcionalnosti putnika
+  - name: vozac
+    description: Funkcionalnosti vozača
+  - name: voznja
+    description: Funkcionalnosti vožnje
+  - name: recenzija
+    description: Funkcionalnosti vezane za recenziju voznje
+  - name: panic
+    description: Pregled panic prijava
+  - name: vozilo
+    description: Funkcionalnosti izmene lokacije vozila
+  - name: korisnik
+    description: Zajedničke funkcionalnosti korisnika
+  - name: neregistrovani korisnik
+    description: Funkcionalnosti za neregistrovanog korisnika
+paths:
+  /putnik:
+    post:
+      tags:
+        - putnik
+      summary: Kreiraj putnika
+      description: Kreiraj novog putnika.
+      operationId: kreirajPutnika
+      requestBody:
+        $ref: "#/components/requestBodies/KreirajKorisnika"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 123
+                  - $ref: "#/components/schemas/Korisnik"
+        "400":
+          description: Nevalidni podaci. Npr. korisničko ime je zauzeto ili pogrešan format za email ili datum.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+    get:
+      tags:
+        - putnik
+      summary: Dobavljanje putnika
+      description: Dobavljanje vise njih za potrebe prikaza liste
+      operationId: dobavljanjePutnika
+      parameters:
+        - in: query
+          name: stranica
+          schema:
+            type: integer
+          description: Koja tacno stranica
+        - in: query
+          name: velicinaStranice
+          schema:
+            type: integer
+          description: Koliko elemenata sa stranice
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                            - $ref: "#/components/schemas/Korisnik"
+  /putnik/{idAktivacije}:
+    post:
+      tags:
+        - putnik
+      summary: Aktiviraj putnika
+      description: Aktivacija putnika preko linka koji mu stize na mejl
+      operationId: aktivirajPutnika
+      parameters:
+        - name: idAktivacije
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Uspesno aktiviran korisnik
+        "400":
+          description: Nevalidni podaci. Npr. isteklo vreme za aktivaciju ili greska oko racunanja hash-a
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Aktivacija ne postoji
+  /putnik/{id}:
+    get:
+      tags:
+        - putnik
+      summary: Detalji putnika
+      description: Vraća detalje putnika sa datim ID-em. Vrednost lozinke je uvek prazno.
+      operationId: detaljiPutnika
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/requestBodies/DetaljiKorisnika"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Putnik ne postoji.
+    put:
+      tags:
+        - putnik
+      summary: Ažuriraj postojećeg putnika
+      description: Ažuriraj postojećeg putnika po id-u. Neobaveznja polja se menjaju samo ako su prosleđene vrednosti.
+      operationId: azurirajPutnika
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/KreirajKorisnika"
+        required: true
+      responses:
+        "200":
+          $ref: "#/components/requestBodies/DetaljiKorisnika"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format za email ili datum.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Putnik ne postoji.
+  /putnik/{id}/voznja:
+    get:
+      tags:
+        - putnik
+      summary: Vožnje putnika
+      description: Vraća paginirane voznje putnika. Mogu se sortirati po odgovarajucem polju
+      operationId: voznjePutnika
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: od
+          schema:
+            type: string
+            format: date-time
+          description: Početak intervala
+        - in: query
+          name: do
+          schema:
+            type: string
+            format: date-time
+          description: Kraj intervala
+        - in: query
+          name: sortirajPo
+          schema:
+            type: string
+            format: string
+            example: vremeKraja
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                                lokacije:
+                                  type: array
+                                  items:
+                                    $ref: "#/components/schemas/GeoKoordinate"
+                            - $ref: "#/components/schemas/Voznja"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Putnik ne postoji.
+
+  /vozac:
+    post:
+      tags:
+        - vozac
+      summary: Kreiraj vozača
+      description: Kreiraj novog vozača.
+      operationId: kreirajVozaca
+      requestBody:
+        $ref: "#/components/requestBodies/KreirajKorisnika"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 123
+                  - $ref: "#/components/schemas/Korisnik"
+        "400":
+          description: Nevalidni podaci. Npr. korisničko ime je zauzeto ili pogrešan format za email ili datum.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+    get:
+      tags:
+        - vozac
+      summary: Dobavljanje vozaca
+      description: Dobavljanje vise njih za potrebe prikaza liste
+      operationId: dobavljanjeVozaca
+      parameters:
+        - in: query
+          name: stranica
+          schema:
+            type: integer
+          description: Koja tacno stranica
+        - in: query
+          name: velicinaStranice
+          schema:
+            type: integer
+          description: Koliko elemenata sa stranice
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                            - $ref: "#/components/schemas/Korisnik"
+  /vozac/{id}:
+    get:
+      tags:
+        - vozac
+      summary: Detalji vozača
+      description: Vraća detalje vozača sa datim ID-em. Vrednost lozinke je uvek prazno.
+      operationId: detaljiVozaca
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/requestBodies/DetaljiKorisnika"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+    put:
+      tags:
+        - vozac
+      summary: Ažuriraj postojećeg vozača
+      description: Ažuriraj postojećeg vozača po id-u. Neobaveznja polja se menjaju samo ako su prosleđene vrednosti.
+      operationId: azurirajVozaca
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/DetaljiKorisnika"
+        required: true
+      responses:
+        "200":
+          $ref: "#/components/requestBodies/DetaljiKorisnika"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format za email ili datum.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+  /vozac/{id}/dokumenti:
+    get:
+      tags:
+        - vozac
+      summary: Dokumenti vozača
+      description: Vraća sve dokumente vozača sa datim ID-em.
+      operationId: dokumentiVozaca
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: integer
+                          example: 123
+                    - $ref: "#/components/schemas/DokumentVozaca"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+    delete:
+      tags:
+        - vozac
+      summary: Dokumenti vozača
+      description: Brise dokumente odgovarajuceg vozaca
+      operationId: brisanjeDokumenata
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Vozač uspesno obrisan.
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+    post:
+      tags:
+        - vozac
+      summary: Dodaj novi dokument vozača.
+      description: Dodaj novi dokument vozača sa slikom dokumenta.
+      operationId: dodajDokumentVozaca
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/DokumentVozaca"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 123
+                  - $ref: "#/components/schemas/DokumentVozaca"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+  /vozac/{id}/vozilo:
+    get:
+      tags:
+        - vozac
+      summary: Vozilo vozača
+      description: Vraća vozilo za vozača.
+      operationId: voziloVozaca
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 123
+                      vozacId:
+                        type: integer
+                        format: integer
+                        example: 123
+                  - $ref: "#/components/schemas/Vozilo"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji ili vozilo ne postoji.
+    post:
+      tags:
+        - vozac
+      summary: Dodaj vozilo vozača.
+      description: Dodaj vozilo vozača. Kreira novo ako ne postoji.
+      operationId: dodajVozilo
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Vozilo"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 123
+                      vozacId:
+                        type: integer
+                        format: integer
+                        example: 123
+                  - $ref: "#/components/schemas/Vozilo"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+    put:
+      tags:
+        - vozac
+      summary: Izmeni vozilo vozača.
+      description: Izmeni vozilo vozača
+      operationId: izmeniVozilo
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Vozilo"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 123
+                      vozacId:
+                        type: integer
+                        format: integer
+                        example: 123
+                  - $ref: "#/components/schemas/Vozilo"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+
+  /vozac/{id}/radno-vreme:
+    get:
+      tags:
+        - vozac
+      summary: Radna vremena vozača.
+      description: Vraća istoriju radnih vremena vozača. Mogu se filtrirati po datumu.
+      operationId: pregledRadnogVremena
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: od
+          schema:
+            type: string
+            format: date-time
+          description: Početak intervala
+        - in: query
+          name: do
+          schema:
+            type: string
+            format: date-time
+          description: Kraj intervala
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/RadnoVreme"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+    post:
+      tags:
+        - vozac
+      summary: Kreiraj informaciju o radnom vremenu.
+      description: Kreiraj informaciju o radnom vremenu. Prosleđuje se makar početak.
+      operationId: dodajRadnoVreme
+      parameters:
+        - name: id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pocetakRadnogVremena
+              properties:
+                pocetakRadnogVremena:
+                  type: string
+                  format: date-string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RadnoVreme"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+
+  /vozac/{id}/voznja:
+    get:
+      tags:
+        - vozac
+      summary: Vožnje vozača
+      description: Vraća paginirane vožnje vozača koje se mogu sortirati po dogvarajućim poljima
+      operationId: voznjeVozaca
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: od
+          schema:
+            type: string
+            format: date-time
+          description: Početak intervala
+        - in: query
+          name: do
+          schema:
+            type: string
+            format: date-time
+          description: Kraj intervala
+        - in: query
+          name: sortirajPo
+          schema:
+            type: string
+            format: string
+            example: vremeKraja
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                                lokacije:
+                                  type: array
+                                  items:
+                                    $ref: "#/components/schemas/GeoKoordinate"
+                            - $ref: "#/components/schemas/Voznja"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji.
+
+  /vozac/{vozac-id}/radno-vreme/{radno-vreme-id}:
+    get:
+      tags:
+        - vozac
+      summary: Detalji radnog vremena vozača.
+      description: Vraća detalje individualnog radno vremena vozača.
+      operationId: detaljiRadnogVremena
+      parameters:
+        - name: vozac-id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+        - name: radno-vreme-id
+          in: path
+          description: ID radnog vremena
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RadnoVreme"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji ili radno vreme ne postoji.
+    put:
+      tags:
+        - vozac
+      summary: Izmena radnog vremena.
+      description: Izmena individualnog radnog vremena vozača.
+      operationId: izmenaRadnogVremena
+      parameters:
+        - name: vozac-id
+          in: path
+          description: ID vozača
+          required: true
+          schema:
+            type: integer
+        - name: radno-vreme-id
+          in: path
+          description: ID radnog vremena
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - krajRadnogVremena
+              properties:
+                krajRadnogVremena:
+                  type: string
+                  format: date-string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RadnoVreme"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozač ne postoji ili radno vreme ne postoji.
+
+  /voznja:
+    post:
+      tags:
+        - voznja
+      summary: Kreiraj vožnju
+      description: Kreiraj novu vožnju.
+      operationId: kreirajVoznju
+      requestBody:
+        $ref: "#/components/requestBodies/KreiranjeVoznje"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Voznja"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: Pending
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format datuma.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+  /voznja/{id}:
+    get:
+      tags:
+        - voznja
+      summary: Detalji vožnje
+      description: Vraća detalje vožnje sa datim ID-em.
+      operationId: detaljiVoznje
+      parameters:
+        - name: id
+          in: path
+          description: ID voznje
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Voznja"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: Pending
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vožnja ne postoji.
+    put:
+      tags:
+        - voznja
+      summary: Otkaži postojeću vožnju
+      description: Putnik treba da je u mogućnosti da otkaže postojeću vožnju ako se predomislio pre nego što je vozač došao na polazište
+      operationId: otkaziVoznju
+      parameters:
+        - name: id
+          in: path
+          description: ID vožnje
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Voznja uspesno otkazana
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vožnja ne postoji.
+
+  /voznja/{id}/panic:
+    put:
+      tags:
+        - voznja
+      summary: Panic procedura za vožnju
+      description: Panic procedura za vožnju po id-u. Kao korisnik se koristi korisnik koji je poslao zahtev (iz tokena).
+      operationId: voznjaPanic
+      parameters:
+        - name: id
+          in: path
+          description: ID vožnje
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/PanicKreiraj"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PanicDetalji"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format za datum.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vožnja ne postoji.
+
+  /voznja/{id}/prihvati:
+    put:
+      tags:
+        - voznja
+      summary: Prihvati vožnju.
+      description: Prihvati vožnju.
+      operationId: voznjaPrihvati
+      parameters:
+        - name: id
+          in: path
+          description: ID vožnje
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Voznja"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: Prihvaceno
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format Id-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vožnja ne postoji.
+
+  /voznja/{id}/zavrsi:
+    put:
+      tags:
+        - voznja
+      summary: Završi vožnju.
+      description: Završi vožnju.
+      operationId: voznjaZavrsi
+      parameters:
+        - name: id
+          in: path
+          description: ID vožnje
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Voznja"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: Zavrseno
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format Id-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vožnja ne postoji.
+
+  /voznja/{id}/odbij:
+    put:
+      tags:
+        - voznja
+      summary: Odbij vožnju uz objašnjenje.
+      description: Odbij vožnju uz objašnjenje.
+      operationId: voznjaOdbij
+      parameters:
+        - name: id
+          in: path
+          description: ID vožnje
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - razlog
+              properties:
+                razlog:
+                  type: string
+                  format: string
+                  example: Niko se nije pojavio na destinaciji
+                  maxLength: 500
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Voznja"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: Odbijeno
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format Id-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vožnja ne postoji.
+
+  /panic:
+    get:
+      tags:
+        - panic
+      summary: Pregled svih panic prijava
+      description: Pregled svih panic prijava.
+      operationId: pregledPanic
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              format: integer
+                              example: 10
+                            korisnik:
+                              $ref: "#/components/schemas/Korisnik"
+                            voznja:
+                              $ref: "#/components/schemas/Voznja"
+                            vreme:
+                              type: string
+                              format: date-time
+                            razlog:
+                              type: string
+                              example: Vozač ne vozi nakon pića. On pije dok vozi.
+
+  /vozilo/{id}/lokacija:
+    put:
+      tags:
+        - vozilo
+      summary: Izmeni lokaciju vozila
+      description: Izmeni lokaciju vozila. Razlikuje se od glavne izmene vozila po tome što ima manji sadržaj i namenjeno je za brze i česte izmene.
+      operationId: izmeniLokacijuVozila
+      parameters:
+        - name: id
+          in: path
+          description: ID vozila
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/GeoKoordinate"
+        required: true
+      responses:
+        "204":
+          description: Koordinate uspešno ažurirane.
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vozilo ne postoji.
+
+  /korisnik/{id}/voznja:
+    get:
+      tags:
+        - korisnik
+      summary: Vožnje korisnika
+      description: Vraća paginirane vožnje korisnika koje se mogu sortirati po dogvarajućim poljima
+      operationId: voznjeKorisnika
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: od
+          schema:
+            type: string
+            format: date-time
+          description: Početak intervala
+        - in: query
+          name: do
+          schema:
+            type: string
+            format: date-time
+          description: Kraj intervala
+        - in: query
+          name: sortirajPo
+          schema:
+            type: string
+            format: string
+            example: vremeKraja
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                                lokacije:
+                                  type: array
+                                  items:
+                                    $ref: "#/components/schemas/GeoKoordinate"
+                            - $ref: "#/components/schemas/Voznja"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Korisnik ne postoji.
+  /korisnik:
+    get:
+      tags:
+        - korisnik
+      summary: Dobavljanje korisnika
+      description: Dobavljanje vise njih za potrebe prikaza liste
+      operationId: dobavljanjeKorisnika
+      parameters:
+        - in: query
+          name: stranica
+          schema:
+            type: integer
+          description: Koja tacno stranica
+        - in: query
+          name: velicinaStranice
+          schema:
+            type: integer
+          description: Koliko elemenata sa stranice
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                            - $ref: "#/components/schemas/Korisnik"
+  /login:
+    post:
+      tags:
+        - korisnik
+      summary: Prijavi se
+      description: Prijavi se
+      operationId: login
+      requestBody:
+        $ref: "#/components/requestBodies/Login"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenOdgovor"
+        "400":
+          description: Nevalidni podaci. Npr. korisničko ime je zauzeto ili pogrešan format za email ili datum.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+  /korisnik/{id}/poruka:
+    get:
+      tags:
+        - korisnik
+      summary: Poruke korisnika
+      description: Vraća sve poruke korisnika.
+      operationId: listaPoruka
+      parameters:
+        - name: id
+          in: path
+          description: ID korisnika
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                                vremeSlanja:
+                                  type: string
+                                  format: date-time
+                                  example: 2022-11-25T17:32:28Z
+                            - $ref: "#/components/schemas/Poruka"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format datuma.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Korisnik ne postoji.
+    post:
+      tags:
+        - korisnik
+      summary: Pošalji poruku korisniku.
+      description: Pošalji poruku korisniku. Kao pošiljaoc se koristi korisnik koji je poslao zahtev (iz tokena).
+      operationId: novaPoruka
+      parameters:
+        - name: id
+          in: path
+          description: ID korisnika
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Poruka"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 123
+                      vremeSlanja:
+                        type: string
+                        format: date-time
+                        example: 2022-11-25T17:32:28Z
+                  - $ref: "#/components/schemas/Poruka"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format datuma.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Korisnik ne postoji.
+  /korisnik/{id}/blokiraj:
+    put:
+      tags:
+        - korisnik
+      summary: Blokiranje korisnika
+      description: Blokiranje korisnika od strane administratora (moze biti bilo vozac ili putnik)
+      operationId: blokiranjeKorisnika
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Korisnik je uspesno blokiran.
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+        "404":
+          description: Korisnik ne postoji.
+  /korisnik/{id}/odblokiraj:
+    put:
+      tags:
+        - korisnik
+      summary: Odblokiranje korisnika
+      description: Odblokiranje korisnika od strane administratora (moze biti bilo vozac ili putnik)
+      operationId: odblokiranjeKorisnika
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Korisnik je uspesno odblokiran.
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format ID-a.
+        "404":
+          description: Korisnik ne postoji.
+  /korisnik/{id}/napomena:
+    post:
+      tags:
+        - korisnik
+      summary: Kreiranje napomene
+      description: Kreiranje napomene od strane administratora koja moze pomoci prilikom odluke o blokiranju
+      operationId: kreiranjeNapomene
+      requestBody:
+        $ref: "#/components/requestBodies/Napomena"
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 10
+                      datum:
+                        type: string
+                        format: date-time
+                        example: 2022-11-25T17:32:28Z
+                  - $ref: "#/components/schemas/Napomena"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format datuma.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Korisnik ne postoji.
+    get:
+      tags:
+        - korisnik
+      summary: Dobavljanje napomena korisnika
+      description: Za odgovarajuceg korisnika dobaviti sve napomene
+      operationId: dobavljanjeNapomena
+      parameters:
+        - name: id
+          in: path
+          description: ID putnika
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: stranica
+          schema:
+            type: integer
+          description: Koja tacno stranica
+        - in: query
+          name: velicinaStranice
+          schema:
+            type: integer
+          description: Koliko elemenata sa stranice
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: integer
+                                  example: 10
+                                datum:
+                                  type: string
+                                  format: date-time
+                                  example: 2022-11-25T17:32:28Z
+                            - $ref: "#/components/schemas/Napomena"
+        "400":
+          description: Nevalidni podaci. Npr. pogrešan format Id-a.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Korisnik ne postoji.
+  /neregistrovaniKorisnik/:
+    post:
+      tags:
+        - neregistrovani korisnik
+      summary: Zatrazi procenu vremena i cene
+      description: Kreiranje podataka o voznji radi dobijanja procene o vremenu i ceni
+      operationId: procenaVremenaICene
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcenaVoznje"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  procenjenoVremeUMinutima:
+                    type: integer
+                    format: integer
+                    example: 10
+                  procenjenaCena:
+                    type: integer
+                    format: integer
+                    example: 450
+        "400":
+          description: Nevalidni podaci.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+
+  /recenzija/{voznjaId}:
+    post:
+      tags:
+        - recenzija
+      summary: Ostavi recenziju za vozača i vozilo
+      description: Kreiranje recenzije o voznji i vozilu
+      operationId: kreiranjeRecenzije
+      parameters:
+        - name: voznjaId
+          in: path
+          description: ID voznje
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ocena
+                - komentar
+              properties:
+                ocena:
+                  type: integer
+                  format: integer
+                  example: 3
+                  minimum: 1
+                  maximum: 10
+                komentar:
+                  type: string
+                  format: string
+                  example: "Vozac je vozio jako brzo i zamalo se nismo slupali vise puta"
+                  maxLength: 500
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: integer
+                    example: 123
+                  ocena:
+                    type: integer
+                    format: integer
+                    example: 3
+                    minimum: 1
+                    maximum: 10
+                  komentar:
+                    type: string
+                    format: string
+                    example: "Vozac je vozio jako brzo i zamalo se nismo slupali vise puta"
+                    maxLength: 500
+        "400":
+          description: Nevalidni podaci ili nije moguće kreirati recenziju.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Greska"
+        "404":
+          description: Vožnja ne postoji.
+    get:
+      tags:
+        - recenzija
+      summary: Dobavi recenziju za voznju
+      description: Pregledaj detalje recenzije o voznji i vozilu
+      operationId: dobavljanjeRecenzije
+      parameters:
+        - name: voznjaId
+          in: path
+          description: ID voznje
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: integer
+                    example: 123
+                  ocena:
+                    type: integer
+                    format: integer
+                    example: 3
+                    minimum: 1
+                    maximum: 10
+                  komentar:
+                    type: string
+                    format: string
+                    example: "Vozac je vozio jako brzo i zamalo se nismo slupali vise puta"
+                    maxLength: 500
+        "404":
+          description: Vožnja ili recenzija ne postoji.
+
+  /recenzije:
+    get:
+      tags:
+        - recenzija
+      summary: Dobavi recenzije za vozača
+      description: Pregled svih recenzija za vozača
+      operationId: dobavljanjeRecenzija
+      parameters:
+        - in: query
+          name: vozacId
+          schema:
+            type: integer
+          description: Cije recenzije zelimo videti
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginiranOdgovor"
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              format: integer
+                              example: 123
+                            ocena:
+                              type: integer
+                              format: integer
+                              example: 3
+                              minimum: 1
+                              maximum: 10
+                            komentar:
+                              type: string
+                              format: string
+                              example: "Vozac je vozio jako brzo i zamalo se nismo slupali vise puta"
+                              maxLength: 500
+
+components:
+  schemas:
+    TokenOdgovor:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    PaginiranOdgovor:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: integer
+          example: 243
+    KorisnikRef:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: integer
+          example: 123
+        email:
+          type: string
+          format: email
+        tip:
+          type: string
+          example: VOZAC
+    Greska:
+      type: object
+      properties:
+        poruka:
+          type: string
+          example: Npr. pogrešan format datuma u polju "pocetakVoznje" ili u kom god drugom polju
+    Korisnik:
+      type: object
+      properties:
+        ime:
+          type: string
+          example: Pera
+          maxLength: 100
+        prezime:
+          type: string
+          example: Perić
+          maxLength: 100
+        profilnaSlika:
+          type: string
+          format: byte
+          example: U3dhZ2dlciByb2Nrcw==
+        brojTelefona:
+          type: string
+          example: "+381123123"
+          maxLength: 18
+        email:
+          type: string
+          format: email
+          example: pera.peric@email.com
+        adresa:
+          type: string
+          example: Bulevar Oslobodjenja 74
+          maxLength: 100
+        lozinka:
+          type: string
+          format: password
+          example: sifra123
+    DokumentVozaca:
+      type: object
+      required:
+        - naziv
+        - slikaDokumenta
+        - vozacId
+      properties:
+        naziv:
+          type: string
+          example: Vozačka dozvola
+          maxLength: 100
+        slikaDokumenta:
+          type: string
+          format: byte
+          example: U3dhZ2dlciByb2Nrcw=
+        vozacId:
+          type: integer
+          format: integer
+          example: 10
+    ProcenaVoznje:
+      type: object
+      required:
+        - lokacije
+        - tipVozila
+        - prevozBeba
+        - prevozKucnihLjubimaca
+      properties:
+        lokacije:
+          type: array
+          description: Lista tačaka ciji redosled definise redosled vožnje
+          items:
+            $ref: "#/components/schemas/LokacijeZaVoznju"
+        tipVozila:
+          type: string
+          example: STANDARDNO
+        prevozBeba:
+          type: boolean
+        prevozKucnihLjubimaca:
+          type: boolean
+    KreiranjeVoznje:
+      type: object
+      required:
+        - lokacije
+        - putnici
+        - tipVozila
+        - prevozBeba
+        - prevozKucnihLjubimaca
+      properties:
+        lokacije:
+          type: array
+          description: Lista tačaka ciji redosled definise redosled vožnje
+          items:
+            $ref: "#/components/schemas/LokacijeZaVoznju"
+        putnici:
+          type: array
+          description: Lista korisnika koji su uvezani na vožnju
+          items:
+            $ref: "#/components/schemas/KorisnikRef"
+        tipVozila:
+          type: string
+          example: STANDARDNO
+        prevozBeba:
+          type: boolean
+        prevozKucnihLjubimaca:
+          type: boolean
+    LokacijeZaVoznju:
+      type: object
+      properties:
+        polaziste:
+          $ref: "#/components/schemas/GeoKoordinate"
+        odrediste:
+          $ref: "#/components/schemas/GeoKoordinate"
+    Voznja:
+      type: object
+      properties:
+        vremePocetka:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        vremeKraja:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:45:14Z
+        ukupnaCena:
+          type: number
+          example: 1235.0
+        vozac:
+          $ref: "#/components/schemas/KorisnikRef"
+        putnici:
+          type: array
+          items:
+            $ref: "#/components/schemas/KorisnikRef"
+        procenjenoVremeMinuti:
+          type: integer
+          example: 5
+        tipVozila:
+          type: string
+          example: STANDARDNO
+        prevozBeba:
+          type: boolean
+        prevozKucnihLjubimaca:
+          type: boolean
+    Recenzija:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: integer
+          example: 10
+        ocena:
+          type: integer
+          format: integer
+          example: 5
+        komentar:
+          type: string
+          example: Odlična vožnja
+        voznja:
+          $ref: "#/components/schemas/KorisnikRef"
+        putnik:
+          $ref: "#/components/schemas/KorisnikRef"
+    GeoKoordinate:
+      type: object
+      required:
+        - lat
+        - long
+      properties:
+        lat:
+          type: number
+          example: 45.267136
+          minimum: -90
+          maximum: 90
+        long:
+          type: number
+          example: 19.833549
+          minimum: -180
+          maximum: 180
+    Vozilo:
+      type: object
+      required:
+        - tipVozila
+        - modelVozila
+        - registarskeTablice
+        - trenutnaLokacija
+        - brojMesta
+      properties:
+        tipVozila:
+          type: string
+          example: STANDARDNO
+        modelVozila:
+          type: string
+          example: VW Golf 2
+          maxLength: 100
+        registarskeTablice:
+          type: string
+          example: NS 123-AB
+          maxLength: 20
+        trenutnaLokacija:
+          $ref: "#/components/schemas/GeoKoordinate"
+        brojMesta:
+          type: integer
+          format: integer
+          example: 4
+          minimum: 1
+          maximum: 20
+        prevozBeba:
+          type: boolean
+        prevozKucnihLjubimaca:
+          type: boolean
+    RadnoVreme:
+      type: object
+      required:
+        - pocetak
+      properties:
+        id:
+          type: integer
+          format: integer
+          example: 10
+        pocetak:
+          type: string
+          format: date-time
+        kraj:
+          type: string
+          format: date-time
+    PanicKreiraj:
+      type: object
+      required:
+        - razlog
+      properties:
+        razlog:
+          type: string
+          example: Vozač pušta pesmu "200 na sat" i smatra je vrlo poučnom.
+          maxLength: 500
+    PanicDetalji:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: integer
+          example: 10
+        korisnikId:
+          type: integer
+          format: integer
+          example: 123
+        voznjaId:
+          type: integer
+          format: integer
+          example: 123
+        vreme:
+          type: string
+          format: date-time
+        razlog:
+          type: string
+          example: Vozač ne vozi nakon pića. On pije dok vozi.
+    PrihvatiVoznju:
+      type: object
+      required:
+        - vreme
+      properties:
+        vreme:
+          type: string
+          format: date-time
+    OdbijVoznju:
+      type: object
+      required:
+        - vreme
+        - razlog
+      properties:
+        vreme:
+          type: string
+          format: date-time
+        razlog:
+          type: string
+          example: Putnik ima slabu kontrolu nad probavnim traktom. U pitanju je ozloglašeni upropaštavač enterijera.
+    Login:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: pera.peric@email.com
+        password:
+          type: string
+          format: password
+          example: sifra123
+    Poruka:
+      type: object
+      required:
+        - primalacId
+        - poruka
+        - tip
+      properties:
+        primalacId:
+          type: integer
+          format: integer
+          example: 123
+        poruka:
+          type: string
+          example: Nikada mi nije bilo jasno zašto se crtani zove "Sunđer Bob", kada je Patrik očigledno zvezda.
+          maxLength: 500
+        tip:
+          type: string
+          example: VOZNJA
+        voznjaId:
+          type: integer
+          format: integer
+          example: 123
+    Napomena:
+      type: object
+      required:
+        - poruka
+      properties:
+        poruka:
+          type: string
+          example: Korisnik je vise puta 25.11.2022. zakazivao i otkazivao voznju
+          maxLength: 500
+
+  requestBodies:
+    KreirajKorisnika:
+      description: Sadrži informacije o novom korisniku
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Korisnik"
+              - type: object
+                required:
+                  - ime
+                  - prezime
+                  - email
+                  - lozinka
+                  - adresa
+
+    Napomena:
+      description: Sadrzi informacije o napomeni
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Napomena"
+
+    DetaljiKorisnika:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  id:
+                    type: integer
+                    format: integer
+                    example: 123
+              - $ref: "#/components/schemas/Korisnik"
+
+    KreiranjeVoznje:
+      description: Podaci neophodni da bi se vožnja kreirala od strane putnika.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/KreiranjeVoznje"
+    DokumentVozaca:
+      description: Sadrži dokument vozača.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/DokumentVozaca"
+    Vozilo:
+      description: Sadrži informacije o vozilu.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Vozilo"
+    RadnoVreme:
+      description: Sadrži informacije o radnom vremenu.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RadnoVreme"
+    Voznja:
+      description: Sadrži informacije o vožnji.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Voznja"
+    ListaVoznji:
+      description: Lista vožnji.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Voznja"
+    PanicKreiraj:
+      description: Kreiranje panic prijave.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PanicKreiraj"
+    ListaPanicDetalji:
+      description: Pregled panic prijave.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/PanicDetalji"
+    PrihvatiVoznju:
+      description: Informacije o prihvatanju vožnje.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PrihvatiVoznju"
+    OdbijVoznju:
+      description: Sadrži odbijenicu sa razlogom odbijanja.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/OdbijVoznju"
+    GeoKoordinate:
+      description: Sadrži geo koordinate sa geografskom dužinom i širinom.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GeoKoordinate"
+    Login:
+      description: Sadrži login kredencijale korisnika.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Login"
+    Poruka:
+      description: Sadrži poruku jednog korisnika drugom.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Poruka"
+    ListaPoruka:
+      description: Sadrži poruku jednog korisnika drugom.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Poruka"
