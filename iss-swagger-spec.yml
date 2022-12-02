@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Inženjerstvo serverskog sloja - projekat 2022
-  version: 1.0.0
+  version: 1.1.1
 tags:
   - name: passenger
     description: Passenger functionalities
@@ -869,6 +869,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /api/ride/active/{driverId}:
+    get:
+      tags:
+        - ride
+      summary: Active ride for driver
+      description: Return active ride details for the driver
+      operationId: activeRideDriverDetails
+      parameters:
+        - in: query
+          name: driverId
+          schema:
+            type: integer
+          description: Which driver
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Ride"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: Pending
+        "404":
+          description: Active ride does not exist
+  /api/ride/active/{passengerId}:
+    get:
+      tags:
+        - ride
+      summary: Active ride for passenger
+      description: Return active ride details for the passenger
+      operationId: activeRidePassengerDetails
+      parameters:
+        - in: query
+          name: passengerId
+          schema:
+            type: integer
+          description: Which driver
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Ride"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: Pending
+        "404":
+          description: Active ride does not exist
   /api/ride/{id}:
     get:
       tags:
@@ -1312,6 +1370,12 @@ paths:
       parameters:
         - name: id
           in: path
+          description: Id of the user
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
           description: Id of the user
           required: true
           schema:
@@ -2023,6 +2087,10 @@ components:
           type: boolean
         petTransport:
           type: boolean
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/GeoCoordinate"
     Review:
       type: object
       properties:
