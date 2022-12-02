@@ -17,7 +17,7 @@ Izmene po verzijama:
 - Kod povratnih vrednosti za korisnike, ne vraca se password polje
 - Kod poruke kao povratne vrednosti prilikom kreiranja vraca se i senderId
 
-  1.1.1
+1.1.1:
 
 - Dodate lokacije u svaki odgovor koji vraca Ride
 - Dobavljanje poruka sada ima query parametar userId, jer se ne dobavljaju sve poruke korisnika, nego sa potrebe chat-a se dobavljaju njegove poruke u kojima je on sender i receiver, ali u vezi sa nekim drugim korisnikom sto predstavlja bas userId
