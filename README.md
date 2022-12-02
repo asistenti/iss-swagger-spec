@@ -2,7 +2,7 @@
 
 Trenutna verzija specifikacije: 1.1.0
 
-# Schemas sekcija na kraju swagger-a samo sadrzi strukture koje su koriscene za izgradnju dokumenta. Nemojte praviti klase poda takvim nazivom, plus nemojte ih kopirati 1 na 1 posto u svakom endpoint-u je dodavano po jos sta od atributa u odnosu na te stavke koje su definisane tamo. Obratiti paznju u svakom endpoint-u na sadrzaj i opis elemenata zahteva i izgled JSON-a koji predstavlja odgovor.
+# Schemas sekcija na kraju swagger-a samo sadrzi strukture koje su koriscene za izgradnju dokumenta. Nemojte praviti klase pod takvim nazivom, plus nemojte ih kopirati 1 na 1 posto u svakom endpoint-u je dodavano po jos sta od atributa u odnosu na te stavke koje su definisane tamo. Obratiti paznju u svakom endpoint-u na sadrzaj i opis elemenata zahteva i izgled JSON-a koji predstavlja odgovor.
 
 Izmene po verzijama:
 
