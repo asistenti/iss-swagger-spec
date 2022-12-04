@@ -32,3 +32,8 @@ Izmene po verzijama:
 
 - Greska kod putanje /api/user/{id}/message. Naveden je pored id-a i userId parametar koji je slucajno ostao neobrisan.
 - Greska kod putanje /api/reviews/{rideId} -> /api/review/{rideId} Uklonjeno je ,,s,, za mnozinu.
+
+1.1.4:
+
+- Promenjen naziv atributa ,,departures,, u ,,departure,, u endpoint-u POST /api/ride i POST /api/unregisteredUser/
+- Odgovor prilikom kreiranja review-a i za vozača i vozilo ima promenjen atribut sa review u comment.

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Inženjerstvo serverskog sloja - projekat 2022
-  version: 1.1.1
+  version: 1.1.4
 tags:
   - name: passenger
     description: Passenger functionalities
@@ -1059,7 +1059,7 @@ paths:
                       status:
                         type: string
                         format: string
-                        example: Prihvaceno
+                        example: ACCEPTED
         "400":
           description: Invalid data. For example bad Id format.
           content:
@@ -1096,7 +1096,7 @@ paths:
                       status:
                         type: string
                         format: string
-                        example: Zavrseno
+                        example: FINISHED
         "400":
           description: Invalid data. For example bad Id format.
           content:
@@ -1146,7 +1146,7 @@ paths:
                       status:
                         type: string
                         format: string
-                        example: Odbijeno
+                        example: REJECTED
         "400":
           description: Invalid data. For example bad Id format.
           content:
@@ -1690,7 +1690,7 @@ paths:
                     example: 3
                     minimum: 1
                     maximum: 10
-                  review:
+                  comment:
                     type: string
                     format: string
                     example: The driver was driving really fast
@@ -1799,7 +1799,7 @@ paths:
                     example: 3
                     minimum: 1
                     maximum: 10
-                  review:
+                  comment:
                     type: string
                     format: string
                     example: The driver was driving really fast
@@ -1945,7 +1945,7 @@ components:
           format: email
         type:
           type: string
-          example: VOZAC
+          example: DRIVER
     Error:
       type: object
       properties:
@@ -2049,7 +2049,7 @@ components:
       properties:
         departure:
           $ref: "#/components/schemas/GeoCoordinate"
-        destinations:
+        destination:
           $ref: "#/components/schemas/GeoCoordinate"
     Ride:
       type: object
@@ -2251,7 +2251,7 @@ components:
           maxLength: 500
         type:
           type: string
-          example: VOZNJA
+          example: RIDE
         rideId:
           type: integer
           format: integer
