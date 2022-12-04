@@ -1374,12 +1374,6 @@ paths:
           required: true
           schema:
             type: integer
-        - name: userId
-          in: query
-          description: Id of the user
-          required: true
-          schema:
-            type: integer
       responses:
         "200":
           description: ""

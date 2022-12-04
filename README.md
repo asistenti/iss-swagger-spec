@@ -25,5 +25,10 @@ Izmene po verzijama:
 
 1.1.2:
 
-- Ispravljene su putanje za review. /api/review/{driverId} -> /api/review/driver/{id}
-                                    /api/review/{vehicleId} -> /api/review/vehicle/{id}
+- Ispravljene su putanje za review. GET /api/review/{driverId} -> GET /api/review/driver/{id}
+                                    GET /api/review/{vehicleId} -> GET /api/review/vehicle/{id}
+
+1.1.3:
+
+- Greska kod putanje /api/user/{id}/message. Naveden je pored id-a i userId parametar koji je slucajno ostao neobrisan.
+- Greska kod putanje /api/reviews/{rideId} -> /api/review/{rideId} Uklonjeno je ,,s,, za mnozinu.
