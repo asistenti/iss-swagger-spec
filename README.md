@@ -22,3 +22,8 @@ Izmene po verzijama:
 - Dodate lokacije u svaki odgovor koji vraca Ride
 - Dobavljanje poruka sada ima query parametar userId, jer se ne dobavljaju sve poruke korisnika, nego sa potrebe chat-a se dobavljaju njegove poruke u kojima je on sender i receiver, ali u vezi sa nekim drugim korisnikom sto predstavlja bas userId
 - Dodata su 2 endpoint-a sa dobavljanje trenutne AKTIVNE voznje za vozaca i putnika.
+
+1.1.2:
+
+- Ispravljene su putanje za review. /api/review/{driverId} -> /api/review/driver/{id}
+                                    /api/review/{vehicleId} -> /api/review/vehicle/{id}

@@ -1644,7 +1644,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /api/review/{vehicleId}:
+  /api/review/vehicle/{id}:
     post:
       tags:
         - review
@@ -1652,7 +1652,7 @@ paths:
       description: Creating a review about the vehicle
       operationId: reviewCreationForVehicle
       parameters:
-        - name: vehicleId
+        - name: id
           in: path
           description: Id of the vehicle
           required: true
@@ -1753,7 +1753,7 @@ paths:
                               example: The driver was driving too fast
                               maxLength: 500
 
-  /api/review/{driverId}:
+  /api/review/driver/{id}/:
     post:
       tags:
         - review
@@ -1761,7 +1761,7 @@ paths:
       description: Creating a review about the driver
       operationId: reviewCreation
       parameters:
-        - name: driverId
+        - name: id
           in: path
           description: Id of the driver
           required: true
