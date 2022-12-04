@@ -1856,7 +1856,7 @@ paths:
                               example: The driver was driving too fast
                               maxLength: 500
 
-  /api/reviews/{rideId}:
+  /api/review/{rideId}:
     get:
       tags:
         - review
