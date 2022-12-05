@@ -45,8 +45,8 @@ Izmene po verzijama:
 
 1.1.6:
 
-- Izbacujemo tip iz passengers i driver-a u voznji
-- Reimenovati poruka u message kod otkazivanja voznja od strane putnika
+- Izbacen tip iz passengers i driver atributa kod voznje jer je redundantan
+- Reimenovan atribut poruka u message kod otkazivanja voznje od strane putnika
 - U odgovoru za kreiranje panic-a, vracaju se user i ride umesto userId i rideId
-- Uklonjen id driver-a iz request body-a kod azuiranja posotjeceg driver-a
-- driver-id je izbacen iz endpointov-a: GET i PUT /api/driver/{driver-id}/working-hour/{working-hour-id} 
+- Uklonjen id driver-a iz request body-a kod azuiranja postojeceg driver-a
+- driver-id je izbacen iz endpointov-a: GET i PUT /api/driver/{driver-id}/working-hour/{working-hour-id} pa sad ti endoint-ovi su GET i PUT driver/working-hour/{working-hour-id}
