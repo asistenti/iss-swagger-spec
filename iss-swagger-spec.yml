@@ -348,7 +348,7 @@ paths:
           schema:
             type: integer
       requestBody:
-        $ref: "#/components/requestBodies/UserDetails"
+        $ref: "#/components/requestBodies/CreateUser"
         required: true
       responses:
         "200":
@@ -769,7 +769,7 @@ paths:
         "404":
           description: Driver does not exist
 
-  /api/driver/{driver-id}/working-hour/{working-hour-id}:
+  /api/driver/working-hour/{working-hour-id}:
     get:
       tags:
         - driver
@@ -777,12 +777,6 @@ paths:
       description: Returns details about the individual working hours of the driver
       operationId: workingHourDetails
       parameters:
-        - name: driver-id
-          in: path
-          description: Id of the driver
-          required: true
-          schema:
-            type: integer
         - name: working-hour-id
           in: path
           description: Id of the working hour
@@ -811,12 +805,6 @@ paths:
       description: Changing individual working hours of the driver
       operationId: changingWorkingHours
       parameters:
-        - name: driver-id
-          in: path
-          description: Id of the driver
-          required: true
-          schema:
-            type: integer
         - name: working-hour-id
           in: path
           description: Id of the working hour
@@ -1945,13 +1933,10 @@ components:
         email:
           type: string
           format: email
-        type:
-          type: string
-          example: DRIVER
     Error:
       type: object
       properties:
-        poruka:
+        message:
           type: string
           example: For example a wrong format of some field in the request
     User:
@@ -2187,14 +2172,10 @@ components:
           type: integer
           format: integer
           example: 10
-        userId:
-          type: integer
-          format: integer
-          example: 123
-        rideId:
-          type: integer
-          format: integer
-          example: 123
+        user:
+          $ref: "#/components/schemas/User"
+        ride:
+          $ref: "#/components/schemas/Ride"
         time:
           type: string
           format: date-time

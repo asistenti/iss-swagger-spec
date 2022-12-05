@@ -42,3 +42,11 @@ Izmene po verzijama:
 1.1.5:
 
 - Ispravljene semanticke greske koje je swagger prijavljivao. Pogledati sam commit sa razlike.
+
+1.1.6:
+
+- Izbacujemo tip iz passengers i driver-a u voznji
+- Reimenovati poruka u message kod otkazivanja voznja od strane putnika
+- U odgovoru za kreiranje panic-a, vracaju se user i ride umesto userId i rideId
+- Uklonjen id driver-a iz request body-a kod azuiranja posotjeceg driver-a
+- driver-id je izbacen iz endpointov-a: GET i PUT /api/driver/{driver-id}/working-hour/{working-hour-id} 
