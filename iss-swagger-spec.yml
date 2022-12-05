@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Inženjerstvo serverskog sloja - projekat 2022
-  version: 1.1.6
+  version: 1.1.7
 tags:
   - name: passenger
     description: Passenger functionalities
@@ -1719,7 +1719,7 @@ paths:
         "404":
           description: Ride does not exist
 
-  /api/review/driver/{id}:
+  /api/review/vehicle/{id}:
     get:
       tags:
         - review
@@ -1839,8 +1839,8 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Ride does not exist
- 
-  /api/review/driver/{id}:  
+
+  /api/review/driver/{id}:
     get:
       tags:
         - review

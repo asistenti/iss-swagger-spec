@@ -57,9 +57,9 @@ Izmene po verzijama:
 - /api/review/{rideId} sada vraca listu objekata za review vozila i vozaca zbog toga sto vise putnika moze da ostavi ocenu za vozilo i vozaca u istoj voznji
 - U svim review endpoint-ovima se dodatno vraca i podatak o putniku koji je ostavio review. Kada se review kreira, to je podatak koji se moze izvuci iz JWT-a, koji cete tek raditi na predavanju, tako da svakako nije neophodno da se salje ko je ostavio review
 - Prilikom kreiranja review-a, treba nam i podatak na koji ride se odnosi review, pa je dodat u putanji:
-/api/review/driver/{id} -> /api/review/{rideId}/driver/{id}
-/api/review/vehicle/{id} -> /api/review/{rideId}/vehicle/{id}
-- Dodat id, status u svim ride odgovrima. Id i status je nesto ce uvek postojati, a odbojenica ce najcesce imati null vrednost prilikom vracanja
+POST /api/review/driver/{id} -> POST /api/review/{rideId}/driver/{id}
+POST /api/review/vehicle/{id} -> POST /api/review/{rideId}/vehicle/{id}
+- Dodati id, status i odbijenica u svim ride odgovrima. Id i status je nesto ce uvek postojati, a odbijenica ce najcesce imati null vrednost prilikom vracanja
 - Ispravljene putanje za aktivne voznje kod vozaca i putnika zbog ambigous greske u Spring-u
 /api/ride/active/{driverId} -> /api/ride/driver/{driverId}/active
 /api/ride/active/{passengerId} -> /api/ride/passenger/{passengerId}/active
