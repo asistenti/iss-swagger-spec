@@ -49,4 +49,21 @@ Izmene po verzijama:
 - Reimenovan atribut poruka u message kod otkazivanja voznje od strane putnika
 - U odgovoru za kreiranje panic-a, vracaju se user i ride umesto userId i rideId
 - Uklonjen id driver-a iz request body-a kod azuiranja postojeceg driver-a
-- driver-id je izbacen iz endpointov-a: GET i PUT /api/driver/{driver-id}/working-hour/{working-hour-id} pa sad ti endoint-ovi su GET i PUT driver/working-hour/{working-hour-id}
+- driver-id je izbacen iz endpointov-a: GET i PUT /api/driver/{driver-id}/working-hour/{working-hour-id} pa sad ti endoint-ovi su GET i PUT /api/driver/working-hour/{working-hour-id}
+
+1.1.7:
+
+- POST promenjen u GET kod aktivacije naloga
+- /api/review/{rideId} sada vraca listu objekata za review vozila i vozaca zbog toga sto vise putnika moze da ostavi ocenu za vozilo i vozaca u istoj voznji
+- U svim review endpoint-ovima se dodatno vraca i podatak o putniku koji je ostavio review. Kada se review kreira, to je podatak koji se moze izvuci iz JWT-a, koji cete tek raditi na predavanju, tako da svakako nije neophodno da se salje ko je ostavio review
+- Prilikom kreiranja review-a, treba nam i podatak na koji ride se odnosi review, pa je dodat u putanji:
+/api/review/driver/{id} -> /api/review/{rideId}/driver/{id}
+/api/review/vehicle/{id} -> /api/review/{rideId}/vehicle/{id}
+- Dodat id, status u svim ride odgovrima. Id i status je nesto ce uvek postojati, a odbojenica ce najcesce imati null vrednost prilikom vracanja
+- Ispravljene putanje za aktivne voznje kod vozaca i putnika zbog ambigous greske u Spring-u
+/api/ride/active/{driverId} -> /api/ride/driver/{driverId}/active
+/api/ride/active/{passengerId} -> /api/ride/passenger/{passengerId}/active
+- Locations u odgovorima kod Ride objekta je istog formata kao i u request-u
+- Cancel ride od strane putnika (/api/ride/{id}) promenjen u -> /api/ride/{id}/withdraw - kao odgovor se takodje vraca ride
+- Kod kreiranja dokumenata za vozaca izbacen je driverId
+
