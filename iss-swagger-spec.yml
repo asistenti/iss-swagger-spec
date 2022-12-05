@@ -877,8 +877,9 @@ paths:
       description: Return active ride details for the driver
       operationId: activeRideDriverDetails
       parameters:
-        - in: query
-          name: driverId
+        - name: driverId
+          in: path
+          required: true
           schema:
             type: integer
           description: Which driver
@@ -906,8 +907,9 @@ paths:
       description: Return active ride details for the passenger
       operationId: activeRidePassengerDetails
       parameters:
-        - in: query
-          name: passengerId
+        - name: passengerId
+          in: path
+          required: true
           schema:
             type: integer
           description: Which driver
@@ -1710,7 +1712,7 @@ paths:
       description: Get the reviews for the specific vehicle
       operationId: gettingTheReviewForVehicle
       parameters:
-        - name: vehicleId
+        - name: id
           in: path
           description: Id of the vehicle
           required: true
@@ -1747,7 +1749,7 @@ paths:
                               example: The driver was driving too fast
                               maxLength: 500
 
-  /api/review/driver/{id}/:
+  /api/review/driver/{id}:
     post:
       tags:
         - review
@@ -1819,7 +1821,7 @@ paths:
       description: Get the reviews for the specific driver
       operationId: gettingTheReview
       parameters:
-        - name: driverId
+        - name: id
           in: path
           description: Id of the ride
           required: true

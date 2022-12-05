@@ -38,3 +38,7 @@ Izmene po verzijama:
 - Promenjen naziv atributa ,,departures,, u ,,departure,, u endpoint-u POST /api/ride i POST /api/unregisteredUser/
 - Odgovor prilikom kreiranja review-a i za vozača i vozilo ima promenjen atribut sa review u comment.
 - Potencijalne enum vrednosti (VOZNJA, VOZAC, Prihvaceno, Zavrseno, Odbijeno) preimenovane u (RIDE, DRIVER, ACCEPTED, FINISHED, REJECTED)
+
+1.1.5
+
+- Ispravljene semanticke greske koje je swagger prijavljivao. Pogledati sam commit sa razlike.
