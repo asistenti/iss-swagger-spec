@@ -69,4 +69,8 @@ POST /api/review/vehicle/{id} -> POST /api/review/{rideId}/vehicle/{id}
 
 1.1.8:
 
-- Ipsravak opis-a endpoint-a za brisanje dokumenata vozaca
+- Ispravak opis-a endpoint-a za brisanje dokumenata vozaca
+
+1.1.9
+
+- /api/passenger/{activationId} -> /api/passenger/activate/{activationId} zbog Srping ambiguous prorblema

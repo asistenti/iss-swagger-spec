@@ -87,7 +87,7 @@ paths:
                                   format: integer
                                   example: 10
                             - $ref: "#/components/schemas/User"
-  /api/passenger/{activationId}:
+  /api/passenger/activate/{activationId}:
     get:
       tags:
         - passenger
