@@ -74,3 +74,7 @@ POST /api/review/vehicle/{id} -> POST /api/review/{rideId}/vehicle/{id}
 1.1.9
 
 - /api/passenger/{activationId} -> /api/passenger/activate/{activationId} zbog Srping ambiguous prorblema
+
+1.1.10
+
+- Kod rute /api/user/{id}/ride u locations listi, uklonjeni atributi address, latitude, longitude, tako da sada ostaju samo deprature i destinations

@@ -1285,18 +1285,7 @@ paths:
                       results:
                         type: array
                         items:
-                          allOf:
-                            - type: object
-                              properties:
-                                id:
-                                  type: integer
-                                  format: integer
-                                  example: 10
-                                locations:
-                                  type: array
-                                  items:
-                                    $ref: "#/components/schemas/GeoCoordinate"
-                            - $ref: "#/components/schemas/Ride"
+                          - $ref: "#/components/schemas/Ride"
         "400":
           description: Invalid data. For example bad Id format.
           content:
