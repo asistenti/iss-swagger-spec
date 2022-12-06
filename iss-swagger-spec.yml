@@ -408,7 +408,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Id of the driver
+          description: Id of the document
           required: true
           schema:
             type: integer

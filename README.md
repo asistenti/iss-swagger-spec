@@ -67,3 +67,6 @@ POST /api/review/vehicle/{id} -> POST /api/review/{rideId}/vehicle/{id}
 - Cancel ride od strane putnika (/api/ride/{id}) promenjen u -> /api/ride/{id}/withdraw - kao odgovor se takodje vraca ride
 - Kod kreiranja dokumenata za vozaca izbacen je driverId
 
+1.1.8:
+
+- Ipsravak opis-a endpoint-a za brisanje dokumenata vozaca
