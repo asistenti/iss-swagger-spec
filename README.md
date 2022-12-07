@@ -78,3 +78,9 @@ POST /api/review/vehicle/{id} -> POST /api/review/{rideId}/vehicle/{id}
 1.1.10
 
 - Kod ruta /api/user/{id}/ride, /api/driver/{id}/ride, /api/passenger/{id}/ride u locations listi, uklonjeni atributi address, latitude, longitude, tako da sada ostaju samo deprature i destinations
+
+1.1.11
+- Ispravljene ride putanje da vraćaju odgovor u telu umesto stringa
+- Ispravljene working-hours PUT i POST rute da imaju telo zahteva
+- /api/login preimenovan u /api/user/login
+- Brisanje dokumenta preimenovano u /api/driver/document/{document-id}

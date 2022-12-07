@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Inženjerstvo serverskog sloja - projekat 2022
-  version: 1.1.7
+  version: 1.1.11
 tags:
   - name: passenger
     description: Passenger functionalities
@@ -221,7 +221,7 @@ paths:
                       results:
                         type: array
                         items:
-                          - $ref: "#/components/schemas/Ride"
+                          $ref: "#/components/schemas/Ride"
         "400":
           description: Invalid data. For example bad Id format.
           content:
@@ -388,30 +388,6 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Driver does not exist
-    delete:
-      tags:
-        - driver
-      summary: Deleting drivers documents
-      description: Deleting drivers documents
-      operationId: deletingDriversDocuments
-      parameters:
-        - name: id
-          in: path
-          description: Id of the document
-          required: true
-          schema:
-            type: integer
-      responses:
-        "204":
-          description: Driver deleted successfully
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: Driver does not exist.
     post:
       tags:
         - driver
@@ -464,6 +440,32 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Driver does not exist
+  # could report ambiguity due to /api/driver/{id} matching /api/driver/document with id=document in theory
+  /api/driver/document/{document-id}:
+    delete:
+        tags:
+          - driver
+        summary: Delete driver's document by id
+        description: Delete driver's document by id
+        operationId: deleteDriverDocument
+        parameters:
+          - name: document-id
+            in: path
+            description: Id of the document
+            required: true
+            schema:
+              type: integer
+        responses:
+          "204":
+            description: Driver document deleted successfully
+          "400":
+            description: Invalid data. For example bad Id format.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+          "404":
+            description: Driver does not exist.
   /api/driver/{id}/vehicle:
     get:
       tags:
@@ -595,7 +597,7 @@ paths:
         "404":
           description: Driver does not exist
 
-  /api/driver/{id}/working-hours:
+  /api/driver/{id}/working-hour:
     get:
       tags:
         - driver
@@ -668,6 +670,9 @@ paths:
           required: true
           schema:
             type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/WorkingHour"
+        required: true
       responses:
         "200":
           description: ""
@@ -741,7 +746,7 @@ paths:
                       results:
                         type: array
                         items:
-                          - $ref: "#/components/schemas/Ride"
+                          $ref: "#/components/schemas/Ride"
         "400":
           description: Invalid data. For example bad Id format.
           content:
@@ -793,6 +798,9 @@ paths:
           required: true
           schema:
             type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/WorkingHour"
+        required: true
       responses:
         "200":
           description: ""
@@ -1252,7 +1260,7 @@ paths:
                       results:
                         type: array
                         items:
-                          - $ref: "#/components/schemas/Ride"
+                          $ref: "#/components/schemas/Ride"
         "400":
           description: Invalid data. For example bad Id format.
           content:
@@ -1300,7 +1308,7 @@ paths:
                                   format: integer
                                   example: 10
                             - $ref: "#/components/schemas/User"
-  /api/login:
+  /api/user/login:
     post:
       tags:
         - user
