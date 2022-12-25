@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Inženjerstvo serverskog sloja - projekat 2022
-  version: 1.1.11
+  version: 2.0.0
 tags:
   - name: passenger
     description: Passenger functionalities
@@ -31,7 +31,6 @@ paths:
         $ref: "#/components/requestBodies/CreateUser"
       responses:
         "200":
-          description: ""
           content:
             application/json:
               schema:
@@ -44,7 +43,7 @@ paths:
                         example: 123
                   - $ref: "#/components/schemas/User"
         "400":
-          description: Invalid data. For example invalid id or email, or email already exists etc.
+          description: User with that email already exists!
           content:
             application/json:
               schema:
@@ -68,7 +67,6 @@ paths:
           description: How many elements on page
       responses:
         "200":
-          description: ""
           content:
             application/json:
               schema:
@@ -103,15 +101,23 @@ paths:
             type: integer
       responses:
         "200":
-          description: Successful account activation
+          description: Successful account activation!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
         "400":
-          description: Invalid data, for example the activation time has expired or error while hash calculation
+          description: Activation expired. Register again!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Activation does not exist
+          description: Activation with entered id does not exist!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api/passenger/{id}:
     get:
       tags:
@@ -129,19 +135,13 @@ paths:
       responses:
         "200":
           $ref: "#/components/requestBodies/UserDetails"
-        "400":
-          description: Invalid data, for example bad id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Passenger does not exist
+          description: Passenger does not exist!
     put:
       tags:
         - passenger
       summary: Update existing passenger
-      description: Update existing passenger non required filed send only if the change
+      description: Update existing passenger non required fields send only if they change
       operationId: updatePassenger
       parameters:
         - name: id
@@ -151,19 +151,23 @@ paths:
           schema:
             type: integer
       requestBody:
-        $ref: "#/components/requestBodies/CreateUser"
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/User"
+                - type: object
+                  required:
+                    - name
+                    - surname
+                    - email
+                    - address
         required: true
       responses:
         "200":
           $ref: "#/components/requestBodies/UserDetails"
-        "400":
-          description: Invalid data. For example bad email format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Passenger does not exist
+          description: Passenger does not exist!
   /api/passenger/{id}/ride:
     get:
       tags:
@@ -181,14 +185,14 @@ paths:
         - in: query
           name: page
           schema:
-            type: number
-            format: number
+            type: integer
+            format: integer
           description: Which page
         - in: query
           name: size
           schema:
-            type: number
-            format: number
+            type: integer
+            format: integer
           description: how many elements on page
         - in: query
           name: sort
@@ -222,15 +226,8 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/Ride"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Passenger does not exist
-
+          description: Passenger does not exist!
   /api/driver:
     post:
       tags:
@@ -255,7 +252,7 @@ paths:
                         example: 123
                   - $ref: "#/components/schemas/User"
         "400":
-          description: Invalid data. For example invalid id or email, or email already exists etc.
+          description: User with that email already exists!
           content:
             application/json:
               schema:
@@ -315,14 +312,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/requestBodies/UserDetails"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist.
+          description: Driver does not exist!
     put:
       tags:
         - driver
@@ -337,7 +328,17 @@ paths:
           schema:
             type: integer
       requestBody:
-        $ref: "#/components/requestBodies/CreateUser"
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/User"
+                - type: object
+                  required:
+                    - name
+                    - surname
+                    - email
+                    - address
         required: true
       responses:
         "200":
@@ -349,7 +350,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist.
+          description: Driver does not exist!
   /api/driver/{id}/documents:
     get:
       tags:
@@ -380,14 +381,8 @@ paths:
                           format: integer
                           example: 123
                     - $ref: "#/components/schemas/DriverDocument"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist
+          description: Driver does not exist!
     post:
       tags:
         - driver
@@ -433,39 +428,32 @@ paths:
                         example: 123
                   - $ref: "#/components/schemas/DriverDocument"
         "400":
-          description: Invalid data. For example bad Id format.
+          description: File is bigger than 5mb!//File is not an image!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist
-  # could report ambiguity due to /api/driver/{id} matching /api/driver/document with id=document in theory
+          description: Driver does not exist!
   /api/driver/document/{document-id}:
     delete:
-        tags:
-          - driver
-        summary: Delete driver's document by id
-        description: Delete driver's document by id
-        operationId: deleteDriverDocument
-        parameters:
-          - name: document-id
-            in: path
-            description: Id of the document
-            required: true
-            schema:
-              type: integer
-        responses:
-          "204":
-            description: Driver document deleted successfully
-          "400":
-            description: Invalid data. For example bad Id format.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/Error"
-          "404":
-            description: Driver does not exist.
+      tags:
+        - driver
+      summary: Delete driver's document by id
+      description: Delete driver's document by id
+      operationId: deleteDriverDocument
+      parameters:
+        - name: document-id
+          in: path
+          description: Id of the document
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Driver document deleted successfully
+        "404":
+          description: Document does not exist!
   /api/driver/{id}/vehicle:
     get:
       tags:
@@ -499,13 +487,13 @@ paths:
                         example: 123
                   - $ref: "#/components/schemas/Vehicle"
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Vehicle is not assigned!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Vehicle or driver do not exist
+          description: Driver does not exist!
     post:
       tags:
         - driver
@@ -543,14 +531,8 @@ paths:
                         format: integer
                         example: 123
                   - $ref: "#/components/schemas/Vehicle"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist
+          description: Driver does not exist!
     put:
       tags:
         - driver
@@ -588,14 +570,8 @@ paths:
                         format: integer
                         example: 123
                   - $ref: "#/components/schemas/Vehicle"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist
+          description: Driver does not exist!
 
   /api/driver/{id}/working-hour:
     get:
@@ -614,14 +590,14 @@ paths:
         - in: query
           name: page
           schema:
-            type: number
-            format: number
+            type: integer
+            format: integer
           description: Which page to retrieve
         - in: query
           name: size
           schema:
-            type: number
-            format: number
+            type: integer
+            format: integer
           description: How many items to retrieve
         - in: query
           name: from
@@ -649,14 +625,8 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/WorkingHour"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist
+          description: Driver does not exist!
     post:
       tags:
         - driver
@@ -671,7 +641,7 @@ paths:
           schema:
             type: integer
       requestBody:
-        $ref: "#/components/requestBodies/WorkingHour"
+        $ref: "#/components/requestBodies/WorkingHourStart"
         required: true
       responses:
         "200":
@@ -681,13 +651,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/WorkingHour"
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Cannot start shift because you exceeded the 8 hours limit in last 24 hours!//Cannot start shift because the vehicle is not defined!//Shifth already ongoing!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist
+          description: Driver does not exist!
 
   /api/driver/{id}/ride:
     get:
@@ -747,14 +717,8 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/Ride"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist
+          description: Driver does not exist!
 
   /api/driver/working-hour/{working-hour-id}:
     get:
@@ -777,14 +741,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WorkingHour"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist or the Working hours does not exist
+          description: Working hour does not exist!
     put:
       tags:
         - driver
@@ -809,13 +767,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/WorkingHour"
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Cannot end shift because the vehicle is not defined!//No shift is ongoing!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Driver does not exist or working hours do not exist
+          description: Working hour does not exist!
 
   /api/ride:
     post:
@@ -842,7 +800,7 @@ paths:
                         format: string
                         example: PENDING
         "400":
-          description: Invalid data. For example the date is in the wrong format.
+          description: Cannot create a ride while you have one already pending!
           content:
             application/json:
               schema:
@@ -876,7 +834,7 @@ paths:
                         format: string
                         example: PENDING
         "404":
-          description: Active ride does not exist
+          description: Active ride does not exist!
   /api/ride/passenger/{passengerId}/active:
     get:
       tags:
@@ -906,7 +864,7 @@ paths:
                         format: string
                         example: PENDING
         "404":
-          description: Active ride does not exist
+          description: Active ride does not exist!
   /api/ride/{id}:
     get:
       tags:
@@ -942,7 +900,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!
   /api/ride/{id}/withdraw:
     put:
       tags:
@@ -972,13 +930,13 @@ paths:
                         format: string
                         example: CANCELED
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Cannot cancel a ride that is not in status PENDING or STARTED!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!
 
   /api/ride/{id}/panic:
     put:
@@ -1004,14 +962,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PanicDetails"
+        "404":
+          description: Ride does not exist!
+
+  /api/ride/{id}/start:
+    put:
+      tags:
+        - ride
+      summary: Start ride
+      description: Start ride
+      operationId: rideStart
+      parameters:
+        - name: id
+          in: path
+          description: Id of the ride
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Ride"
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        format: string
+                        example: STARTED
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Cannot start a ride that is not in status ACCEPTED!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!
 
   /api/ride/{id}/accept:
     put:
@@ -1042,13 +1031,13 @@ paths:
                         format: string
                         example: ACCEPTED
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Cannot accept a ride that is not in status PENDING!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!
 
   /api/ride/{id}/end:
     put:
@@ -1079,13 +1068,13 @@ paths:
                         format: string
                         example: FINISHED
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Cannot end a ride that is not in status FINISHED!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!
 
   /api/ride/{id}/cancel:
     put:
@@ -1129,13 +1118,107 @@ paths:
                         format: string
                         example: REJECTED
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Cannot cancel a ride that is not in status PENDING!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!
+
+  /api/ride/favorites:
+    post:
+      tags:
+        - ride
+      summary: Create favorite locations for quick selection
+      description: Favorite locations
+      operationId: favoriteLocationsCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  required:
+                    - favoriteName
+                  properties:
+                    favoriteName:
+                      type: string
+                      format: string
+                      example: Home - to - Work
+                      maxLength: 100
+                - $ref: "#/components/schemas/RideCreation"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+
+                    properties:
+                      id:
+                        type: integer
+                        format: integer
+                        example: 123
+                      favoriteName:
+                        type: string
+                        format: string
+                        example: Home - to - Work
+                  - $ref: "#/components/schemas/RideCreation"
+        "400":
+          description: Number of favorite rides cannot exceed 10!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - ride
+      summary: Get favorite locations
+      description: Favorite locations
+      operationId: favoriteLocationsGet
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: integer
+                          example: 123
+                        favoriteName:
+                          type: string
+                          format: string
+                          example: Home - to - Work
+                    - $ref: "#/components/schemas/RideCreation"
+
+  /api/ride/favorites/{id}:
+    delete:
+      tags:
+        - ride
+      summary: Delete existing favorite ride
+      description: Favorite locations
+      operationId: rideDelete
+      parameters:
+        - name: id
+          in: path
+          description: Id of the ride
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Successful deletion of favorite location!
+        "404":
+          description: Favorite location does not exist!
 
   /api/panic:
     get:
@@ -1195,13 +1278,105 @@ paths:
         "204":
           description: Coordinates successfully updated
         "400":
-          description: Invalid data. For example bad Id format.
+          description: Vehicle is not assigned to the specific driver!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Vehicle does not exist
+          description: Vehicle does not exist!
+
+  /api/user/{id}/changePassword:
+    put:
+      tags:
+        - user
+      summary: Change password of a user
+      description: When user wants to cahnge his password he must enter old and new password
+      operationId: changePassword
+      parameters:
+        - name: id
+          in: path
+          description: Id of user
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - new_password
+                - old_password
+              properties:
+                new_password:
+                  type: string
+                  pattern: /^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$/
+                old_password:
+                  type: string
+                  pattern: /^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$/
+      responses:
+        "204":
+          description: Password successfully changed!
+        "400":
+          description: Current password is not matching!
+        "404":
+          description: User does not exist!
+
+  /api/user/{id}/resetPassword:
+    get:
+      tags:
+        - user
+      summary: Reset password of user
+      description: When user wants to reset his password, a email will be sent with a code that should allow him the change
+      operationId: resetPassword
+      parameters:
+        - name: id
+          in: path
+          description: Id of user
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Email with reset code has been sent!
+        "404":
+          description: User does not exist!
+    put:
+      tags:
+        - user
+      summary: Change password of a user with the reset code
+      description: Similary to changing password, this one does not require old_password, just new_password with code from the email
+      operationId: resetPasswordChange
+      parameters:
+        - name: id
+          in: path
+          description: Id of user
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - new_password
+                - code
+              properties:
+                new_password:
+                  type: string
+                  pattern: /^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$/
+                code:
+                  type: string
+                  pattern: /^[0-9]{1,6}$/
+      responses:
+        "204":
+          description: Password successfully changed!
+        "400":
+          description: Code is expired or not correct!
+        "404":
+          description: User does not exist!
 
   /api/user/{id}/ride:
     get:
@@ -1261,14 +1436,8 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/Ride"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: User does not exist
+          description: User does not exist!
   /api/user:
     get:
       tags:
@@ -1325,7 +1494,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
         "400":
-          description: Invalid data. For example the user with the email does not exist or the password does not match
+          description: Wrong username or password!
           content:
             application/json:
               schema:
@@ -1373,14 +1542,8 @@ paths:
                                   format: number
                                   example: 123
                             - $ref: "#/components/schemas/Message"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: User does not exist
+          description: User does not exist!
     post:
       tags:
         - user
@@ -1417,14 +1580,8 @@ paths:
                         format: number
                         example: 123
                   - $ref: "#/components/schemas/Message"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: User does not exist
+          description: User does not exist!//Receiver does not exist!//Ride does not exist!
   /api/user/{id}/block:
     put:
       tags:
@@ -1443,13 +1600,13 @@ paths:
         "204":
           description: User is successfully blocked
         "400":
-          description: Invalid data. For example bad Id format.
+          description: User already blocked!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: User does not exist
+          description: User does not exist!
   /api/user/{id}/unblock:
     put:
       tags:
@@ -1468,13 +1625,13 @@ paths:
         "204":
           description: User is successfully unblocked
         "400":
-          description: Invalid data. For example bad Id format.
+          description: User is not blocked!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: User does not exist
+          description: User does not exist!
   /api/user/{id}/note:
     post:
       tags:
@@ -1509,14 +1666,8 @@ paths:
                         format: date-time
                         example: 2022-11-25T17:32:28Z
                   - $ref: "#/components/schemas/Note"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: User does not exist
+          description: User does not exist!
     get:
       tags:
         - user
@@ -1565,14 +1716,8 @@ paths:
                                   format: date-time
                                   example: 2022-11-25T17:32:28Z
                             - $ref: "#/components/schemas/Note"
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: User does not exist
+          description: User does not exist!
   /api/unregisteredUser/:
     post:
       tags:
@@ -1601,12 +1746,6 @@ paths:
                     type: integer
                     format: integer
                     example: 450
-        "400":
-          description: Invalid data. For example bad Id format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
 
   /api/review/{rideId}/vehicle/{id}:
     post:
@@ -1675,13 +1814,13 @@ paths:
                   passenger:
                     $ref: "#/components/schemas/UserRef"
         "400":
-          description: Invalid data or it is not possible to create a review
+          description: Vehicle was not on a last ride!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!//Vehicle does not exist!
 
   /api/review/vehicle/{id}:
     get:
@@ -1729,6 +1868,8 @@ paths:
                               maxLength: 500
                             passenger:
                               $ref: "#/components/schemas/UserRef"
+        "404":
+          description: Vehicle does not exist!
 
   /api/review/{rideId}/driver/{id}:
     post:
@@ -1796,13 +1937,13 @@ paths:
                   passenger:
                     $ref: "#/components/schemas/UserRef"
         "400":
-          description: Invalid data or it is not possible to create a review
+          description: Driver was not on a last ride!
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist
+          description: Ride does not exist!//Vehicle does not exist!
 
   /api/review/driver/{id}:
     get:
@@ -1850,6 +1991,8 @@ paths:
                               maxLength: 500
                             passenger:
                               $ref: "#/components/schemas/UserRef"
+        "404":
+          description: Driver does not exist!
 
   /api/review/{rideId}:
     get:
@@ -1915,6 +2058,8 @@ paths:
                           maxLength: 500
                         passenger:
                           $ref: "#/components/schemas/UserRef"
+        "404":
+          description: Ride does not exist!
 
 components:
   schemas:
@@ -1936,6 +2081,9 @@ components:
           example: 243
     UserRef:
       type: object
+      required:
+        - id
+        - email
       properties:
         id:
           type: integer
@@ -1944,12 +2092,19 @@ components:
         email:
           type: string
           format: email
+          maxLength: 100
     Error:
       type: object
       properties:
         message:
           type: string
-          example: For example a wrong format of some field in the request
+          example: Message placeholder (Concrete messages are in description)
+    Success:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Message placeholder (Concrete messages are in description)
     User:
       type: object
       properties:
@@ -1973,6 +2128,7 @@ components:
           type: string
           format: email
           example: pera.peric@email.com
+          maxLength: 100
         address:
           type: string
           example: Bulevar Oslobodjenja 74
@@ -2011,7 +2167,7 @@ components:
             $ref: "#/components/schemas/LocationsForRide"
         vehicleType:
           type: string
-          example: STANDARDNO
+          example: STANDARD
         babyTransport:
           type: boolean
         petTransport:
@@ -2037,13 +2193,17 @@ components:
             $ref: "#/components/schemas/UserRef"
         vehicleType:
           type: string
-          example: STANDARDNO
+          example: STANDARD
+          maxLength: 50
         babyTransport:
           type: boolean
         petTransport:
           type: boolean
     LocationsForRide:
       type: object
+      required:
+        - departure
+        - destination
       properties:
         departure:
           $ref: "#/components/schemas/GeoCoordinate"
@@ -2078,7 +2238,7 @@ components:
           example: 5
         vehicleType:
           type: string
-          example: STANDARDNO
+          example: STANDARD
         babyTransport:
           type: boolean
         petTransport:
@@ -2147,7 +2307,7 @@ components:
       properties:
         vehicleType:
           type: string
-          example: STANDARDNO
+          example: STANDARD
         model:
           type: string
           example: VW Golf 2
@@ -2170,8 +2330,6 @@ components:
           type: boolean
     WorkingHour:
       type: object
-      required:
-        - start
       properties:
         id:
           type: integer
@@ -2180,6 +2338,22 @@ components:
         start:
           type: string
           format: date-time
+        end:
+          type: string
+          format: date-time
+    WorkingHourStart:
+      type: object
+      required:
+        - start
+      properties:
+        start:
+          type: string
+          format: date-time
+    WorkingHourEnd:
+      type: object
+      required:
+        - end
+      properties:
         end:
           type: string
           format: date-time
@@ -2294,8 +2468,8 @@ components:
                 properties:
                   password:
                     type: string
-                    format: string
-                    example: Pasword123
+                    pattern: /^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$/
+                    example: NekaSifra123
 
     Note:
       description: Contains informations about the Note
@@ -2339,11 +2513,23 @@ components:
           schema:
             $ref: "#/components/schemas/Vehicle"
     WorkingHour:
-      description: Contains the information about the working houts of the driver
+      description: Contains the information about the working hours of the driver
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/WorkingHour"
+    WorkingHourStart:
+      description: Contains the information about the working hours of the driver
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WorkingHourStart"
+    WorkingHourEnd:
+      description: Contains the information about the working hours of the driver
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WorkingHourEnd"
     Ride:
       description: Contains the information about the ride
       content:
