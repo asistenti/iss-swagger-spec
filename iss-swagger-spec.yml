@@ -759,7 +759,7 @@ paths:
           schema:
             type: integer
       requestBody:
-        $ref: "#/components/requestBodies/WorkingHour"
+        $ref: "#/components/requestBodies/WorkingHourEnd"
         required: true
       responses:
         "200":
