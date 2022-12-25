@@ -31,6 +31,7 @@ paths:
         $ref: "#/components/requestBodies/CreateUser"
       responses:
         "200":
+          description: ""
           content:
             application/json:
               schema:
@@ -67,6 +68,7 @@ paths:
           description: How many elements on page
       responses:
         "200":
+          description: ""
           content:
             application/json:
               schema:
