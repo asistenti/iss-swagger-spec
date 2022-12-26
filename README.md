@@ -24,8 +24,8 @@ Izmene po verzijama:
 
 2.0.0:
 
-- POST /api/review/{rideId}/driver/{id} -> /api/review/{rideId}/driver Id driver-a zapravo nije neophodan jer je jedan vozač vezan za ride
-- POST /api/review/{rideId}/vehicle/{id} -> /api/review/{rideId}/vehicle Id vehicle-a zapravo nije neophodan jer je jedno vozilo vezano za ride
+- POST i GET /api/review/{rideId}/driver/{id} -> /api/review/{rideId}/driver Id driver-a zapravo nije neophodan jer je jedan vozač vezan za ride
+- POST i GET /api/review/{rideId}/vehicle/{id} -> /api/review/{rideId}/vehicle Id vehicle-a zapravo nije neophodan jer je jedno vozilo vezano za ride
 - Uklonjen password kao polje iz putanja -> PUT /api/passenger/{id} i PUT /api/driver/{id}
 - vehicleType preimenovan na svim mestima sa STANDARDNO na STANDARD
 - id u telu slanja zahteva za kreiranje i menjanje radnog vremena je izbacen

@@ -1749,7 +1749,7 @@ paths:
                     format: integer
                     example: 450
 
-  /api/review/{rideId}/vehicle/{id}:
+  /api/review/{rideId}/vehicle:
     post:
       tags:
         - review
@@ -1815,12 +1815,6 @@ paths:
                     maxLength: 500
                   passenger:
                     $ref: "#/components/schemas/UserRef"
-        "400":
-          description: Vehicle was not on a last ride!
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
           description: Ride does not exist!//Vehicle does not exist!
 
@@ -1873,7 +1867,7 @@ paths:
         "404":
           description: Vehicle does not exist!
 
-  /api/review/{rideId}/driver/{id}:
+  /api/review/{rideId}/driver:
     post:
       tags:
         - review
@@ -1938,14 +1932,8 @@ paths:
                     maxLength: 500
                   passenger:
                     $ref: "#/components/schemas/UserRef"
-        "400":
-          description: Driver was not on a last ride!
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
-          description: Ride does not exist!//Vehicle does not exist!
+          description: Ride does not exist!
 
   /api/review/driver/{id}:
     get:
