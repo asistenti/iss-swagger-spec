@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Inženjerstvo serverskog sloja - projekat 2022
-  version: 2.0.0
+  version: 2.0.1
 tags:
   - name: passenger
     description: Passenger functionalities
@@ -116,10 +116,6 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Activation with entered id does not exist!
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   /api/passenger/{id}:
     get:
       tags:
@@ -785,7 +781,17 @@ paths:
       description: Creating a ride
       operationId: creatingRide
       requestBody:
-        $ref: "#/components/requestBodies/RideCreation"
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/RideCreation"
+                - type: object
+                  properties:
+                    scheduledTime:
+                      type: string
+                      format: date-time
+                      example: 2023-01-11T17:45:00Z
         required: true
       responses:
         "200":
@@ -801,6 +807,10 @@ paths:
                         type: string
                         format: string
                         example: PENDING
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "400":
           description: Cannot create a ride while you have one already pending!
           content:
@@ -835,6 +845,10 @@ paths:
                         type: string
                         format: string
                         example: PENDING
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "404":
           description: Active ride does not exist!
   /api/ride/passenger/{passengerId}/active:
@@ -865,6 +879,10 @@ paths:
                         type: string
                         format: string
                         example: PENDING
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "404":
           description: Active ride does not exist!
   /api/ride/{id}:
@@ -895,6 +913,10 @@ paths:
                         type: string
                         format: string
                         example: PENDING
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "400":
           description: Invalid data. For example bad Id format.
           content:
@@ -931,6 +953,10 @@ paths:
                         type: string
                         format: string
                         example: CANCELED
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "400":
           description: Cannot cancel a ride that is not in status PENDING or STARTED!
           content:
@@ -995,6 +1021,10 @@ paths:
                         type: string
                         format: string
                         example: STARTED
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "400":
           description: Cannot start a ride that is not in status ACCEPTED!
           content:
@@ -1032,6 +1062,10 @@ paths:
                         type: string
                         format: string
                         example: ACCEPTED
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "400":
           description: Cannot accept a ride that is not in status PENDING!
           content:
@@ -1069,8 +1103,12 @@ paths:
                         type: string
                         format: string
                         example: FINISHED
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "400":
-          description: Cannot end a ride that is not in status FINISHED!
+          description: Cannot end a ride that is not in status STARTED!
           content:
             application/json:
               schema:
@@ -1119,8 +1157,12 @@ paths:
                         type: string
                         format: string
                         example: REJECTED
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
         "400":
-          description: Cannot cancel a ride that is not in status PENDING!
+          description: Cannot cancel a ride that is not in status PENDING or ACCEPTED!
           content:
             application/json:
               schema:
@@ -1158,7 +1200,6 @@ paths:
               schema:
                 allOf:
                   - type: object
-
                     properties:
                       id:
                         type: integer
@@ -1168,6 +1209,10 @@ paths:
                         type: string
                         format: string
                         example: Home - to - Work
+                      scheduledTime:
+                        type: string
+                        format: date-time
+                        example: 2023-01-11T17:45:00Z
                   - $ref: "#/components/schemas/RideCreation"
         "400":
           description: Number of favorite rides cannot exceed 10!
@@ -1279,12 +1324,6 @@ paths:
       responses:
         "204":
           description: Coordinates successfully updated
-        "400":
-          description: Vehicle is not assigned to the specific driver!
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "404":
           description: Vehicle does not exist!
 
@@ -1308,20 +1347,26 @@ paths:
             schema:
               type: object
               required:
-                - new_password
-                - old_password
+                - newPassword
+                - oldPassword
               properties:
-                new_password:
+                newPassword:
                   type: string
-                  pattern: /^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$/
-                old_password:
+                  pattern: '^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$'
+                  example: NekaSifra123
+                oldPassword:
                   type: string
-                  pattern: /^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$/
+                  pattern: '^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$'
+                  example: NekaSifra123
       responses:
         "204":
           description: Password successfully changed!
         "400":
           description: Current password is not matching!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
           description: User does not exist!
 
@@ -1363,20 +1408,26 @@ paths:
             schema:
               type: object
               required:
-                - new_password
+                - newPassword
                 - code
               properties:
-                new_password:
+                newPassword:
                   type: string
-                  pattern: /^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$/
+                  pattern: '^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,15})$'
+                  example: NekaSifra123
                 code:
                   type: string
-                  pattern: /^[0-9]{1,6}$/
+                  pattern: '^[0-9]{6}$'
+                  example: 123456
       responses:
         "204":
           description: Password successfully changed!
         "400":
           description: Code is expired or not correct!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
           description: User does not exist!
 
@@ -1543,6 +1594,10 @@ paths:
                                   type: number
                                   format: number
                                   example: 123
+                                receiverId:
+                                  type: number
+                                  format: number
+                                  example: 123
                             - $ref: "#/components/schemas/Message"
         "404":
           description: User does not exist!
@@ -1578,6 +1633,10 @@ paths:
                         format: date-time
                         example: 2022-11-25T17:32:28Z
                       senderId:
+                        type: number
+                        format: number
+                        example: 123
+                      receiverId:
                         type: number
                         format: number
                         example: 123
@@ -1757,12 +1816,6 @@ paths:
       description: Creating a review about the vehicle
       operationId: reviewCreationForVehicle
       parameters:
-        - name: id
-          in: path
-          description: Id of the vehicle
-          required: true
-          schema:
-            type: integer
         - name: rideId
           in: path
           description: Id of the of the ride
@@ -1875,12 +1928,6 @@ paths:
       description: Creating a review about the driver
       operationId: reviewCreation
       parameters:
-        - name: id
-          in: path
-          description: Id of the driver
-          required: true
-          schema:
-            type: integer
         - name: rideId
           in: path
           description: Id of the of the ride
@@ -2366,7 +2413,14 @@ components:
         user:
           $ref: "#/components/schemas/User"
         ride:
-          $ref: "#/components/schemas/Ride"
+          allOf:
+            - $ref: "#/components/schemas/Ride"
+            - type: object
+              properties:
+                scheduledTime:
+                  type: string
+                  format: date-time
+                  example: 2023-01-11T17:45:00Z
         time:
           type: string
           format: date-time
@@ -2410,15 +2464,10 @@ components:
     Message:
       type: object
       required:
-        - receiverId
         - message
         - type
         - rideId
       properties:
-        receiverId:
-          type: integer
-          format: integer
-          example: 123
         message:
           type: string
           example: The driver is going on a longer route on purpose

@@ -22,6 +22,18 @@ Pošto neke endpoint-e mogu gađati i administrator i vozač ili putnik, u putan
 
 Izmene po verzijama:
 
+
+2.0.1:
+
+- receiverId iz putanje POST /api/user/{id}/message je redundantan pa je uklonjen
+- U putanjama PUT /api/user/{id}/changePassword i PUT /api/user/{id}/resetPassword su promenjene promenljive u camelCase i azurirana su ogranicenja (regex-i) koji se iz nekog razloga nisu lepo prikazivali u swagger editoru, a jesu u ReDoc-u.
+- Promena 400 greske u putanji /api/vehicle/{id}/location u 404 ,,Vehicle does not exist!,, jer stara greska nije u skladu sa objasnjenjem na vrhu ovog fajla
+- Zbog konzistentnosti ispravljeno je da sve 400 greske se vracaju kao application/json, a 404 kao text/plain
+- Azurirana poruka u response-u za putanju GET /api/ride/{id}/end
+- Azurirana poruka u response-u za putanju GET /api/ride/{id}/cancel
+- **Jedan bitan detalj nije dodat u samo kreiranje voznje, a tice se podatka o vremenu kada se voznja zakazuje za buducnost te je u Ride objekat koji se koristi u vecini /api/ride/.. endpoint-ova prosiren atributom scheduledTime**
+
+
 2.0.0:
 
 - POST i GET /api/review/{rideId}/driver/{id} -> /api/review/{rideId}/driver Id driver-a zapravo nije neophodan jer je jedan vozač vezan za ride
